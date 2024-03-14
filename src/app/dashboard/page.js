@@ -80,30 +80,34 @@ const Dashboard = () => {
           <Chart data={filteredData} type={graphType} alerts={alert} />
         </div>
         {alertWidgetEnabled && (
-          <div className="h-[20vh] absolute bottom-0 w-full bg-white rounded-md p-4 shadow-md">
-            <h2 className="text-xl font-semibold text-gray-800 mb-4">Alerts</h2>
-            <div className='alert-container'>
-              <div className={alerts.length > 0 ? 'mt-4' : 'hidden'}>
-                {alerts.map((alert, index) => (
-                  <div key={index} className="bg-gray-100 rounded-md shadow-sm mb-2 p-2 cursor-pointer hover:bg-gray-200" onClick={() => setSelectedAlert([{ value: alert.value, message: alert.message }])}>
-                    <span className="text-blue-500 font-semibold">{alert.type}</span>
-                    <span className="text-gray-700 ml-2">{alert.message}</span>
-                    <span className="text-gray-500 ml-2">{alert.timestamp}</span>
-                  </div>
-                ))}
-              </div>
-              <div className={leakageAlerts.length > 0 ? 'mt-4' : 'hidden'}>
-                {leakageAlerts.map((alert, index) => (
-                  <div key={index} className="bg-gray-100 rounded-md shadow-sm mb-2 p-2 cursor-pointer hover:bg-gray-200" onClick={() => setSelectedAlert([{ value: alert.value, message: alert.message }])}>
-                    <span className="text-blue-500 font-semibold">{alert.type}</span>
-                    <span className="text-gray-700 ml-2">{alert.message}</span>
-                    <span className="text-gray-500 ml-2">{alert.timestamp}</span>
-                  </div>
-                ))}
-              </div>
+  <div className="h-[50vh] absolute bottom-0 w-full bg-white overflow-y-scroll">
+    <div className='border-t-[1px] overflow-y-scroll'>
+      {alerts.length > 0 && (
+        <div className="mt-4">
+          {alerts.map((alert, index) => (
+            <div key={index} className="bg-gray-100 rounded-md shadow-sm mb-2 p-2 cursor-pointer hover:bg-gray-200" onClick={() => setSelectedAlert([{ value: alert.value, message: alert.message }])}>
+              <span className="text-blue-500 font-semibold">{alert.type}</span>
+              <span className="text-gray-700 ml-2">{alert.message}</span>
+              <span className="text-gray-500 ml-2">{alert.timestamp}</span>
             </div>
-          </div>
-        )}
+          ))}
+        </div>
+      )}
+      {leakageAlerts.length > 0 && (
+        <div className="mt-4">
+          {leakageAlerts.map((alert, index) => (
+            <div key={index} className="bg-gray-100 rounded-md shadow-sm mb-2 p-2 cursor-pointer hover:bg-gray-200" onClick={() => setSelectedAlert([{ value: alert.value, message: alert.message }])}>
+              <span className="text-blue-500 font-semibold">{alert.type}</span>
+              <span className="text-gray-700 ml-2">{alert.message}</span>
+              <span className="text-gray-500 ml-2">{alert.timestamp}</span>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  </div>
+)}
+
       </div>
       <div className="flex justify-center">
         <div className="p-4 shadow-lg w-96">
