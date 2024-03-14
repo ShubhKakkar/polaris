@@ -1,91 +1,126 @@
 "use client";
-import React, { useState } from 'react';
-import { Input } from "@/components/ui/input"
-import GraphSelect from '@/components/commons/GraphSelect';
-import DateConfigurator from '@/components/commons/DateConfigurator';
-import TimeConfigure from '@/components/commons/TimeConfigure';
-import { Button } from '@/components/ui/button';
-import { ToastAction } from "@/components/ui/toast"
-import { useToast } from "@/components/ui/use-toast"
-import ChartElement from '@/components/commons/ChartElement';
+
+import React, { useState, useEffect } from 'react';
+import Chart from '../../components/commons/Chart';
+import DataForm from '../../components/commons/DataForm';
+import ConfigurationScreen from '../../components/commons/ConfigurationScreen';
+import Papa from 'papaparse';
 
 const Dashboard = () => {
+  const [data, setData] = useState([]);
+  const [filteredData, setFilteredData] = useState([]);
+  const [file, setFile] = useState([]);
+  const [graphType, setGraphType] = useState('line');
+  const [alertWidgetEnabled, setAlertWidgetEnabled] = useState(false);
+  const [alerts, setAlerts] = useState([]);
+  const [leakageAlerts, setLeakageAlerts] = useState([]);
+  const [alert, setSelectedAlert] = useState([]);
 
-  const [csvFile, setCSVFile] = useState(null);
-  const [graphType, selectGraphType] = useState("line-graph");
-  const [startDate, setStartDate] = useState("21-11-2023");
-  const [endDate, setEndDate] = useState("21-11-2023");
-  const [startTime, setStartTime] = useState("14:00:00");
-  const [endTime, setEndTime] = useState("18:00:00");
-  const [chartData, setChartData] = useState(null);
-  const { toast } = useToast();
-
-  const handleChartCreation = () => {
-    console.log(startDate, startTime, endDate, endTime, csvFile, graphType);
-    const showErrorToast = (description) => {
-      toast({
-        variant: "destructive",
-        title: "Uh oh! Something went wrong.",
-        description,
-        action: <ToastAction altText="Try again">Try again</ToastAction>,
-      });
-    };
-
-    // if (!csvFile || csvFile.type !== "text/csv") {
-    //   showErrorToast("File type needs to be csv.");
-    // } else if (!graphType) {
-    //   showErrorToast("Please select graph type.");
-    // } else if (!startDate) {
-    //   showErrorToast("Please select start date.");
-    // } else if (!endDate) {
-    //   showErrorToast("Please select end date.");
-    // } else if (!startTime) {
-    //   showErrorToast("Please select start time.");
-    // } else if (!endTime) {
-    //   showErrorToast("Please select end time.");
-    // }
-    // else {
-    //   const data = {
-    //     csvFile: csvFile,
-    //     graphType: graphType,
-    //     startDate: startDate,
-    //     endDate: endDate,
-    //     startTime: startTime,
-    //     endTime: endTime,
-    //   }
-    //   console.log(data);
-    //   setChartData(data);
-    // }
-    const data = {
-      csvFile: csvFile,
-      graphType: graphType,
-      startDate: startDate,
-      endDate: endDate,
-      startTime: startTime,
-      endTime: endTime,
+  useEffect(() => {
+    if (filteredData.length === 0) {
+      setLeakageAlerts([]);
+      setAlerts([]);
     }
-    setChartData(data);
+  }, [filteredData]);
+
+  const handleFileChange = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      setFile(file);
+      const reader = new FileReader();
+      reader.onload = function (event) {
+        const csvData = Papa.parse(event.target.result, { header: true }).data;
+        setData(csvData);
+      };
+      reader.readAsText(file);
+    }
   };
 
+  const handleSubmit = (startTime, endTime, selectedMeters) => {
+        if (file.length === 0) {
+      return;
+    }
+    setAlerts([]);
+    setLeakageAlerts([]);
+    if (data) {
+      const filtered = data.filter(entry => entry.Timestamp > startTime && entry.Timestamp < endTime);
+      setFilteredData(filtered);
+      calculateAlerts(filtered);
+      window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+    }
+  };
+
+  const calculateAlerts = (data) => {
+    const newAlerts = [];
+    const newLeakageAlerts = [];
+
+    data.forEach(entry => {
+      // Sum the power values of M1, M2, M3, and M4
+      const totalPowerMeters = parseInt(entry["M1 Power (Watts)"]) + parseInt(entry["M2 Power (Watts)"]) + parseInt(entry["M3 Power (Watts)"]) + parseInt(entry["M4 Power Watts"]);
+      // Check if the total power exceeds 1000 Watts
+      if (totalPowerMeters > 1000) {
+        newAlerts.push({ type: 'Total Power Exceeded', message: 'Total power consumption exceeded 1000 Watts', timestamp: entry.Timestamp, value: totalPowerMeters });
+      }
+
+      const leakageCurrent = parseInt(entry['Cluster Meter Power (Watts)']) - (parseInt(entry['M1 Power (Watts)']) + parseInt(entry['M2 Power (Watts)']) + parseInt(entry['M3 Power (Watts)']) + parseInt(entry['M4 Power Watts']));
+
+      if (leakageCurrent > 300) {
+        newLeakageAlerts.push({ type: 'Leakage Current Exceeded', message: `Leakage current exceeded 300 Watts at : ${entry.Timestamp}`, value: leakageCurrent });
+      }
+    });
+
+    setAlerts(newAlerts);
+    setLeakageAlerts(newLeakageAlerts);
+  };
 
   return (
-    <div>
-      <div className="flex h-full">
-        <div className="h-[calc(100vh-70px)] w-3/4 p-5 grid place-items-center">
-          <ChartElement chartData={chartData} />
+    <div className="flex h-screen">
+      <div className={`flex-1 h-full relative`}>
+        <div className="h-[50vh]">
+          <Chart data={filteredData} type={graphType} alerts={alert} />
         </div>
-        <div className="h-[calc(100vh-70px)] w-1/4 p-5 flex flex-col gap-4">
-          <GraphSelect graphType={graphType} selectGraphType={selectGraphType} />
-          <DateConfigurator setStartDate={setStartDate} setEndDate={setEndDate} />
-          <TimeConfigure setStartTime={setStartTime} setEndTime={setEndTime} />
-          <Button className="w-full" onClick={handleChartCreation}>Create Graph</Button>
-        </div>
+        {alertWidgetEnabled && (
+          <div className="h-[20vh] absolute bottom-0 w-full bg-white rounded-md p-4 shadow-md">
+            <h2 className="text-xl font-semibold text-gray-800 mb-4">Alerts</h2>
+            <div className='alert-container'>
+              <div className={alerts.length > 0 ? 'mt-4' : 'hidden'}>
+                {alerts.map((alert, index) => (
+                  <div key={index} className="bg-gray-100 rounded-md shadow-sm mb-2 p-2 cursor-pointer hover:bg-gray-200" onClick={() => setSelectedAlert([{ value: alert.value, message: alert.message }])}>
+                    <span className="text-blue-500 font-semibold">{alert.type}</span>
+                    <span className="text-gray-700 ml-2">{alert.message}</span>
+                    <span className="text-gray-500 ml-2">{alert.timestamp}</span>
+                  </div>
+                ))}
+              </div>
+              <div className={leakageAlerts.length > 0 ? 'mt-4' : 'hidden'}>
+                {leakageAlerts.map((alert, index) => (
+                  <div key={index} className="bg-gray-100 rounded-md shadow-sm mb-2 p-2 cursor-pointer hover:bg-gray-200" onClick={() => setSelectedAlert([{ value: alert.value, message: alert.message }])}>
+                    <span className="text-blue-500 font-semibold">{alert.type}</span>
+                    <span className="text-gray-700 ml-2">{alert.message}</span>
+                    <span className="text-gray-500 ml-2">{alert.timestamp}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
       </div>
-      <div className="h-[70px] p-2 flex flex-col border-t">
-        <Input type="file" className="h-full border inline cursor-pointer" setCSVFile={setCSVFile} />
+      <div className="flex justify-center">
+        <div className="p-4 shadow-lg w-96">
+          <div className="mb-4">
+            <ConfigurationScreen graphType={graphType} setGraphType={setGraphType} alertWidgetEnabled={alertWidgetEnabled} setAlertWidgetEnabled={setAlertWidgetEnabled} />
+          </div>
+          <div className="mb-4">
+            <label htmlFor="fileInput" className="block text-sm font-medium text-gray-700">Upload CSV File</label>
+            <input id="fileInput" className="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" required type="file" onChange={handleFileChange} accept=".csv" />
+          </div>
+          <div className="mb-4">
+            <DataForm className="data-form" onSubmit={handleSubmit} />
+          </div>
+        </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default Dashboard
+export default Dashboard;
