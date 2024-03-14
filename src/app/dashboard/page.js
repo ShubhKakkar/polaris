@@ -5,19 +5,28 @@ import Chart from '../../components/commons/Chart';
 import DataForm from '../../components/commons/DataForm';
 import ConfigurationScreen from '../../components/commons/ConfigurationScreen';
 import Papa from 'papaparse';
+import { useToast } from "@/components/ui/use-toast"
+import { ToastAction } from '@/components/ui/toast';
 
 const Dashboard = () => {
   const [data, setData] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
   const [file, setFile] = useState([]);
   const [graphType, setGraphType] = useState('line');
-  const [alertWidgetEnabled, setAlertWidgetEnabled] = useState(false);
+  const [alertWidgetEnabled, setAlertWidgetEnabled] = useState(true);
   const [alerts, setAlerts] = useState([]);
   const [leakageAlerts, setLeakageAlerts] = useState([]);
   const [alert, setSelectedAlert] = useState([]);
+  const { toast } = useToast()
 
   useEffect(() => {
     if (filteredData.length === 0) {
+      toast({
+        variant: "destructive",
+        title: "No csv file found.",
+        description: "There was a problem with your request.",
+        action: <ToastAction altText="Try again">Try again</ToastAction>,
+      })
       setLeakageAlerts([]);
       setAlerts([]);
     }
@@ -38,6 +47,7 @@ const Dashboard = () => {
 
   const handleSubmit = (startTime, endTime, selectedMeters) => {
     if (file.length === 0) {
+      // toast.
       return;
     }
     setAlerts([]);
@@ -115,7 +125,7 @@ const Dashboard = () => {
             <ConfigurationScreen graphType={graphType} setGraphType={setGraphType} alertWidgetEnabled={alertWidgetEnabled} setAlertWidgetEnabled={setAlertWidgetEnabled} />
           </div>
           <div className="border p-2 rounded">
-            <label htmlFor="fileInput" className="block text-sm font-medium text-gray-700">Upload CSV File</label>
+            <label htmlFor="fileInput" className="block text-sm font-medium text-gray-700">Upload .csv file</label>
             <input id="fileInput" className="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" required type="file" onChange={handleFileChange} accept=".csv" />
           </div>
           <div className="border p-2 rounded">

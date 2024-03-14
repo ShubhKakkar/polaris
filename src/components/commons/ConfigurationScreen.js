@@ -10,10 +10,10 @@ const ConfigurationScreen = ({ graphType, setGraphType, alertWidgetEnabled, setA
       <option value="bar">Stacked Bar Graph</option>
     </select>
   </div>
-  <div className="flex items-center">
+  {/* <div className="flex items-center">
     <input id="alertWidgetEnabled" className="mr-2 rounded border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" type="checkbox" checked={alertWidgetEnabled} onChange={(e) => setAlertWidgetEnabled(e.target.checked)} />
     <label htmlFor="alertWidgetEnabled" className="text-sm font-medium text-gray-700">Enable Alert Widget</label>
-  </div>
+  </div> */}
 </div>
 
   );
