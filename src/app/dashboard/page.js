@@ -21,12 +21,6 @@ const Dashboard = () => {
 
   useEffect(() => {
     if (filteredData.length === 0) {
-      toast({
-        variant: "destructive",
-        title: "No csv file found.",
-        description: "There was a problem with your request.",
-        action: <ToastAction altText="Try again">Try again</ToastAction>,
-      })
       setLeakageAlerts([]);
       setAlerts([]);
     }
@@ -47,7 +41,12 @@ const Dashboard = () => {
 
   const handleSubmit = (startTime, endTime, selectedMeters) => {
     if (file.length === 0) {
-      // toast.
+      toast({
+        variant: "destructive",
+        title: "No csv file found.",
+        description: "There was a problem with your request.",
+        action: <ToastAction altText="Try again">Try again</ToastAction>,
+      });
       return;
     }
     setAlerts([]);
@@ -90,32 +89,41 @@ const Dashboard = () => {
           <Chart data={filteredData} type={graphType} alerts={alert} />
         </div>
         {alertWidgetEnabled && (
-          <div className="h-[50vh] absolute bottom-0 w-full bg-white overflow-y-scroll">
-            <div className='border-t-[1px] overflow-y-scroll'>
-              {alerts.length > 0 && (
-                <div className="mt-4">
-                  {alerts.map((alert, index) => (
-                    <div key={index} className="bg-gray-100 rounded-md shadow-sm mb-2 p-2 cursor-pointer hover:bg-gray-200" onClick={() => setSelectedAlert([{ value: alert.value, message: alert.message }])}>
-                      <span className="text-blue-500 font-semibold">{alert.type}</span>
-                      <span className="text-gray-700 ml-2">{alert.message}</span>
-                      <span className="text-gray-500 ml-2">{alert.timestamp}</span>
-                    </div>
-                  ))}
-                </div>
-              )}
-              {leakageAlerts.length > 0 && (
-                <div className="mt-4">
-                  {leakageAlerts.map((alert, index) => (
-                    <div key={index} className="bg-gray-100 rounded-md shadow-sm mb-2 p-2 cursor-pointer hover:bg-gray-200" onClick={() => setSelectedAlert([{ value: alert.value, message: alert.message }])}>
-                      <span className="text-blue-500 font-semibold">{alert.type}</span>
-                      <span className="text-gray-700 ml-2">{alert.message}</span>
-                      <span className="text-gray-500 ml-2">{alert.timestamp}</span>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
+          <div className="h-[50vh] absolute bottom-0 w-full bg-transparent overflow-y-scroll">
+          <div className="border-t border-gray-200 overflow-y-scroll">
+            {alerts.length > 0 && (
+              <div className="mt-4">
+                {alerts.map((alert, index) => (
+                  <div
+                    key={index}
+                    className="bg-white rounded-md shadow hover:shadow-lg mb-2 p-2 cursor-pointer transition duration-300 ease-in-out text-sm"
+                    onClick={() => setSelectedAlert([{ value: alert.value, message: alert.message }])}
+                  >
+                    <span className="text-blue-500 font-semibold">{alert.type}</span>
+                    <span className="text-gray-700 ml-2">{alert.message}</span>
+                    <span className="text-gray-500 ml-2">{alert.timestamp}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+            {leakageAlerts.length > 0 && (
+              <div className="mt-4">
+                {leakageAlerts.map((alert, index) => (
+                  <div
+                    key={index}
+                    className="bg-white rounded-md shadow hover:shadow-lg mb-2 p-2 cursor-pointer transition duration-300 ease-in-out text-sm"
+                    onClick={() => setSelectedAlert([{ value: alert.value, message: alert.message }])}
+                  >
+                    <span className="text-blue-500 font-semibold">{alert.type}</span>
+                    <span className="text-gray-700 ml-2">{alert.message}</span>
+                    <span className="text-gray-500 ml-2">{alert.timestamp}</span>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
+        </div>
+        
         )}
 
       </div>
