@@ -37,7 +37,7 @@ const Dashboard = () => {
   };
 
   const handleSubmit = (startTime, endTime, selectedMeters) => {
-        if (file.length === 0) {
+    if (file.length === 0) {
       return;
     }
     setAlerts([]);
@@ -80,45 +80,45 @@ const Dashboard = () => {
           <Chart data={filteredData} type={graphType} alerts={alert} />
         </div>
         {alertWidgetEnabled && (
-  <div className="h-[50vh] absolute bottom-0 w-full bg-white overflow-y-scroll">
-    <div className='border-t-[1px] overflow-y-scroll'>
-      {alerts.length > 0 && (
-        <div className="mt-4">
-          {alerts.map((alert, index) => (
-            <div key={index} className="bg-gray-100 rounded-md shadow-sm mb-2 p-2 cursor-pointer hover:bg-gray-200" onClick={() => setSelectedAlert([{ value: alert.value, message: alert.message }])}>
-              <span className="text-blue-500 font-semibold">{alert.type}</span>
-              <span className="text-gray-700 ml-2">{alert.message}</span>
-              <span className="text-gray-500 ml-2">{alert.timestamp}</span>
+          <div className="h-[50vh] absolute bottom-0 w-full bg-white overflow-y-scroll">
+            <div className='border-t-[1px] overflow-y-scroll'>
+              {alerts.length > 0 && (
+                <div className="mt-4">
+                  {alerts.map((alert, index) => (
+                    <div key={index} className="bg-gray-100 rounded-md shadow-sm mb-2 p-2 cursor-pointer hover:bg-gray-200" onClick={() => setSelectedAlert([{ value: alert.value, message: alert.message }])}>
+                      <span className="text-blue-500 font-semibold">{alert.type}</span>
+                      <span className="text-gray-700 ml-2">{alert.message}</span>
+                      <span className="text-gray-500 ml-2">{alert.timestamp}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+              {leakageAlerts.length > 0 && (
+                <div className="mt-4">
+                  {leakageAlerts.map((alert, index) => (
+                    <div key={index} className="bg-gray-100 rounded-md shadow-sm mb-2 p-2 cursor-pointer hover:bg-gray-200" onClick={() => setSelectedAlert([{ value: alert.value, message: alert.message }])}>
+                      <span className="text-blue-500 font-semibold">{alert.type}</span>
+                      <span className="text-gray-700 ml-2">{alert.message}</span>
+                      <span className="text-gray-500 ml-2">{alert.timestamp}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
-          ))}
-        </div>
-      )}
-      {leakageAlerts.length > 0 && (
-        <div className="mt-4">
-          {leakageAlerts.map((alert, index) => (
-            <div key={index} className="bg-gray-100 rounded-md shadow-sm mb-2 p-2 cursor-pointer hover:bg-gray-200" onClick={() => setSelectedAlert([{ value: alert.value, message: alert.message }])}>
-              <span className="text-blue-500 font-semibold">{alert.type}</span>
-              <span className="text-gray-700 ml-2">{alert.message}</span>
-              <span className="text-gray-500 ml-2">{alert.timestamp}</span>
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
-  </div>
-)}
+          </div>
+        )}
 
       </div>
       <div className="flex justify-center">
-        <div className="p-4 shadow-lg w-96">
-          <div className="mb-4">
+        <div className="p-2 shadow-lg w-96 flex flex-col gap-4">
+          <div className="border p-2 rounded">
             <ConfigurationScreen graphType={graphType} setGraphType={setGraphType} alertWidgetEnabled={alertWidgetEnabled} setAlertWidgetEnabled={setAlertWidgetEnabled} />
           </div>
-          <div className="mb-4">
+          <div className="border p-2 rounded">
             <label htmlFor="fileInput" className="block text-sm font-medium text-gray-700">Upload CSV File</label>
             <input id="fileInput" className="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" required type="file" onChange={handleFileChange} accept=".csv" />
           </div>
-          <div className="mb-4">
+          <div className="border p-2 rounded">
             <DataForm className="data-form" onSubmit={handleSubmit} />
           </div>
         </div>
